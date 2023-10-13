@@ -1,71 +1,127 @@
 """Created on Oct 08 21:27:22 2023"""
+
+from fractions import Fraction
 from unittest import TestCase
 
 from Matrix import Matrix
+from subclasses.specials.IDENTITY_ import IDENTITY
 
 
 class TestMatrix(TestCase):
-    a = Matrix([[2, 3], [-5, 6]])
-    b = Matrix([[2, 0], [3, 5]])
-    c = Matrix([[4], [0], [6]])
+    a1 = Matrix([[2, 3], [-5, 6]])
+    a2 = Matrix([[2, 0], [3, 5]])
+    a3 = Matrix([[4], [0], [6]])
 
-    d = Matrix([3])
-    e = Matrix([5 - 2])
+    b1 = Matrix([3])
+    b2 = Matrix([5 - 2])
+    b3 = Matrix([[3 - 1], [3 + 3]])
+    b4 = Matrix([[2], [6]])
 
-    f = Matrix([[3 - 1], [3 + 3]])
-    g = Matrix([[2], [6]])
+    c1 = Matrix([[2, 6], [3, 2]])
+    c2 = Matrix([[1, -5], [2, 3]])
 
-    h = Matrix([[2, 6], [3, 2]])
-    i = Matrix([[1, -5], [2, 3]])
+    d1 = Matrix([[0], [1], [2]])
+    d2 = Matrix([[1, 2], [3, 4]])
+    d3 = Matrix([[1, 2], [2, -1], [3, 0]])
 
-    j = Matrix([[0], [1], [2]])
-    k = Matrix([[1, 2], [3, 4]])
-    l_ = Matrix([[1, 2], [2, -1], [3, 0]])
+    e1 = Matrix([[2, 1], [-1, 3]])
+    e2 = Matrix([[3], [1]])
+    e3 = Matrix([[-1, 0], [1, 2]])
 
-    m = Matrix([[2, 1], [-1, 3]])
-    n = Matrix([[3], [1]])
-    o = Matrix([[-1, 0], [1, 2]])
+    f1 = Matrix([[-1, 2], [2, 1]])
+    f2 = Matrix([[1], [-1]])
 
-    p = Matrix([[-1, 2], [2, 1]])
-    q = Matrix([[1], [-1]])
+    g1 = Matrix([[1, 2, 3], [-1, -1, -1], [0, 1, 2]])
+    g2 = Matrix([[1, 1, 1], [2, 2, 2], [3, 3, 3]])
+    g3 = Matrix([[1, 0], [0, 1]])
+    g4 = Matrix([[0, 2], [3, 0]])
+    g5 = Matrix([[1, 1], [1, 0]])
 
-    r1 = Matrix([[1, 2, 3], [-1, -1, -1], [0, 1, 2]])
-    r2 = Matrix([[1, 1, 1], [2, 2, 2], [3, 3, 3]])
-    r3 = Matrix([[1, 0], [0, 1]])
-    r4 = Matrix([[0, 2], [3, 0]])
-    r5 = Matrix([[1, 1], [1, 0]])
+    h1 = Matrix([[1, -2], [3, 4]])
+    h2 = Matrix([[0, 7], [-3, 8]])
+    h3 = Matrix([[2, 3], [1, 1], [0, -2]])
+    h4 = Matrix([[2, -1], [3, 0]])
 
-    s1 = Matrix([[1, -2], [3, 4]])
-    s2 = Matrix([[0, 7], [-3, 8]])
+    i1 = Matrix([[-1, 3], [2, 0]])
+    i2 = Matrix([[1, 2], [-3, -5]])
+    i3 = Matrix([[2, 1], [1, 3]])
+
+    j1 = Matrix([[-1, 1], [2, 0]])
+    j2 = Matrix([[3, 6], [2, 4]])
+    j3 = Matrix([[7, -9], [3, 5]])
+
+    k1 = Matrix([[1, 2], [-3, -5]])
+    k2 = Matrix([[-1, 3], [2, 0]])
+    k3 = Matrix([[0.5, 3 / 4], [1, 2]])
+    k4 = Matrix([[4, 0], [-1, 2]])
+    k5 = Matrix([[-4, -2], [1, -1]])
+
+    l1 = Matrix([[3, 5], [4, 7]])
+    l2 = Matrix([[7, -5], [-4, 3]])
+
+    m1 = Matrix([[2, -2], [3, 2]])
+    m2 = Matrix([[4], [6]])
 
     def test_order(self):
-        self.assertEqual(self.a.dim, 'RxC: 2x2')
-        self.assertEqual(self.b.dim, 'RxC: 2x2')
-        self.assertEqual(self.c.dim, 'RxC: 3x1')
+        self.assertEqual(self.a1.dim, 'RxC: 2x2')
+        self.assertEqual(self.a2.dim, 'RxC: 2x2')
+        self.assertEqual(self.a3.dim, 'RxC: 3x1')
 
     def test_equal(self):
-        self.assertTrue(self.d == self.e)
-        self.assertTrue(self.f == self.g)
-        self.assertFalse(self.d == self.g)
+        self.assertTrue(self.b1 == self.b2)
+        self.assertTrue(self.b3 == self.b4)
+        self.assertFalse(self.b1 == self.b4)
 
     def test_negation(self):
-        self.assertEqual(-self.h, Matrix([[-2, -6], [-3, -2]]))
-        self.assertEqual(-self.i, Matrix([[-1, 5], [-2, -3]]))
+        self.assertEqual(-self.c1, Matrix([[-2, -6], [-3, -2]]))
+        self.assertEqual(-self.c2, Matrix([[-1, 5], [-2, -3]]))
 
     def test_transpose(self):
-        self.assertEqual(self.j.transpose(), Matrix([0, 1, 2]))
-        self.assertEqual(self.k.transpose(), Matrix([[1, 3], [2, 4]]))
+        self.assertEqual(self.d1.transpose(), Matrix([0, 1, 2]))
+        self.assertEqual(self.d2.transpose(), Matrix([[1, 3], [2, 4]]))
         # transpose of transpose is the matrix itself
-        self.assertTrue(self.k.transpose().transpose() == self.k)
-        self.assertEqual(self.l_.transpose(), Matrix([[1, 2, 3], [2, -1, 0]]))
-        self.assertEqual((self.s1 - self.s2).transpose(), self.s1.transpose() - self.s2.transpose())
+        self.assertTrue(self.d2.transpose().transpose() == self.d2)
+        self.assertEqual(self.d3.transpose(), Matrix([[1, 2, 3], [2, -1, 0]]))
+        self.assertEqual((self.h1 - self.h2).transpose(), self.h1.transpose() - self.h2.transpose())
 
     def test_addition(self):
-        self.assertEqual(self.m + self.o, Matrix([[1, 1], [0, 5]]))
-        self.assertEqual(self.r1 + self.r2, Matrix([[2, 3, 4], [1, 1, 1], [3, 4, 5]]))
-        self.assertEqual((self.r3 + self.r4) + self.r5, Matrix([[2, 3], [4, 1]]))
+        self.assertEqual(self.e1 + self.e3, Matrix([[1, 1], [0, 5]]))
+        self.assertEqual(self.g1 + self.g2, Matrix([[2, 3, 4], [1, 1, 1], [3, 4, 5]]))
+        self.assertEqual((self.g3 + self.g4) + self.g5, Matrix([[2, 3], [4, 1]]))
 
     def test_multiplication(self):
-        self.assertEqual(2 * self.p, Matrix([[-2, 4], [4, 2]]))
-        self.assertEqual(-1 * self.q, Matrix([[-1], [1]]))
-        self.assertEqual(3 * self.s1 - 2 * self.s2, Matrix([[3, -20], [15, -4]]))
+        self.assertEqual(2 * self.f1, Matrix([[-2, 4], [4, 2]]))
+        self.assertEqual(-1 * self.f2, Matrix([[-1], [1]]))
+        self.assertEqual(3 * self.h1 - 2 * self.h2, Matrix([[3, -20], [15, -4]]))
+        self.assertEqual(self.h3 * self.h4, Matrix([[13, -2], [5, -1], [-6, 0]]))
+
+    def test_multiple_operators(self):
+        self.assertEqual(self.i1 * (self.i2 * self.i3), (self.i1 * self.i2) * self.i3)
+        self.assertEqual(self.i1 * (self.i2 - self.i3), self.i1 * self.i2 - self.i1 * self.i3)
+        self.assertEqual((self.i1 * self.i2).transpose(), self.i2.transpose() * self.i1.transpose())
+
+    def test_determinant(self):
+        self.assertEqual(self.j1.determinant(), -2)
+        self.assertEqual(self.j2.determinant(), 0)
+        self.assertTrue(self.j2.is_singular)
+        self.assertFalse(self.j3.is_singular)
+
+    def test_inverse(self):
+        self.assertFalse(self.k1.is_singular)
+        self.assertAlmostEqual(self.k1.inverse().in_fractions, Matrix([[-5, -2], [3, 1]]))
+        self.assertFalse(self.k2.is_singular)
+        self.assertAlmostEqual(self.k2.inverse().in_fractions,
+                               Matrix([[0, 0.5], [Fraction(1, 3), Fraction(1, 6)]]))
+        self.assertFalse(self.k3.is_singular)
+        self.assertEqual(self.k3.inverse().in_fractions, Matrix([[8, -3], [-4, 2]]))
+        self.assertAlmostEqual(self.k3.adjoint, Matrix([[2, Fraction(-3, 4)], [-1, 0.5]]))
+        self.assertEqual(self.k3.inverse() * self.k3, Matrix([[1, 0], [0, 1]]))
+        self.assertAlmostEqual((self.k4 * self.k5).inverse().in_fractions,
+                               self.k5.inverse().in_fractions * self.k4.inverse().in_fractions)
+
+    def test_multiplicative_inverse(self):
+        self.assertTrue(self.l1.is_multiplicative_inverse(self.l2))
+        self.assertEqual(self.l1 * self.l2, Matrix(IDENTITY(self.l1.n_rows).matrix()))
+
+    def test_random(self):
+        self.assertEqual(self.m1.inverse().in_fractions * self.m2, Matrix([[2], [0]]))

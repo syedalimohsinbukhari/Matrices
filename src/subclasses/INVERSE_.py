@@ -35,7 +35,7 @@ class INVERSE:
         scaled_row = [x * factor for x in matrix[source_row]]
         matrix[target_row] = [x + y for x, y in zip(matrix[target_row], scaled_row)]
 
-    def inverse(self, separate_determinant=False):
+    def inverse(self):
         n = len(self.elements)
         if n != len(self.elements[0]):
             raise ValueError("Matrix must be square for inverse calculation.")

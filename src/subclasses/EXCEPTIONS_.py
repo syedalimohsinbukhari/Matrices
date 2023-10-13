@@ -17,7 +17,7 @@ class MatrixDimensionsMismatch(MatrixException):
 
 
 class NotASquareMatrixError(MatrixException):
-    def __init__(self, message='The provided matrix is not a square matrix.\nCan\'t perform LU Decomposition.'):
+    def __init__(self, message="The provided matrix is not a square matrix.\nCan't perform LU Decomposition."):
         super().__init__(message)
 
 
@@ -27,10 +27,10 @@ class SlicingNotAllowed(MatrixException):
 
 
 class IndexOutOfBounds(MatrixException):
-    def __init__(self, message="'The given index doesn't exist for the matrix."):
+    def __init__(self, message="The given index doesn't exist for the matrix."):
         super().__init__(message)
 
 
 class DeterminantIsZero(MatrixException):
-    def __init__(self, message="'The given matrix is singular and its inverse can't be calculated."):
+    def __init__(self, message="The given matrix is singular and its inverse can't be calculated."):
         super().__init__(message)

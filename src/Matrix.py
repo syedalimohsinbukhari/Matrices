@@ -4,8 +4,8 @@ import numpy as np
 
 import p_error_config as pec
 from subclasses import DETERMINANT_ as DET_
-from subclasses import INVERSE_ as INV_
 from subclasses import MATRIX as MAT_
+from subclasses.specials.IDENTITY_ import IDENTITY
 
 pec.config()
 
@@ -19,8 +19,15 @@ class Matrix(MAT_.MATRIX):
     def determinant(self):
         return DET_.DETERMINANT(self.n_rows, self.n_cols).determinant(self.elements)
 
+    def transpose(self):
+        return super().transpose()
+
     def inverse(self, separate_determinant=False):
-        return self._give_output(INV_.INVERSE(self.elements).inverse(separate_determinant))
+        return super().inverse(separate_determinant)
 
     def get_numpy_compatible_matrix(self):
         return np.array([i for i in self.elements])
+
+    def is_multiplicative_inverse(self, other):
+        id_ = IDENTITY(self.n_rows).matrix()
+        return True if self * other == Matrix(id_) else False

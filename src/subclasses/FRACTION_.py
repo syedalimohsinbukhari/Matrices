@@ -1,9 +1,9 @@
-from fractions import Fraction as PyFraction
+from fractions import Fraction
 
 
 class FRACTION:
     def __init__(self, decimal):
-        self.fraction = PyFraction(decimal).limit_denominator()
+        self.fraction = Fraction(decimal).limit_denominator()
 
     def __str__(self):
         return str(self.fraction)

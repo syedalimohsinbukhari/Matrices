@@ -1,7 +1,10 @@
 """Created on Oct 07 17:48:12 2023"""
 
 import subclasses.EXCEPTIONS_ as EX_
+from subclasses.DETERMINANT_ import DETERMINANT
 from subclasses.FRACTION_ import FRACTION
+from subclasses.INVERSE_ import INVERSE
+from subclasses.specials.IDENTITY_ import IDENTITY
 
 
 class MATRIX:
@@ -135,18 +138,29 @@ class MATRIX:
         return f'RxC: {self.n_rows}x{self.n_cols}'
 
     @property
+    def is_singular(self):
+        return True if DETERMINANT(self.n_rows, self.n_cols).determinant(self.elements) == 0 else False
+
+    @property
     def trace(self):
         return sum([self.elements[i][i] for i in range(self.n_rows)])
 
     @property
     def in_fractions(self):
-        fr_ = [[FRACTION(j) for j in i] for i in self.elements]
+        fr_ = [[FRACTION(j).fraction for j in i] for i in self.elements]
 
         return self._give_output(fr_)
 
     @property
+    def adjoint(self):
+        inv_ = self._give_output(INVERSE(self.elements).inverse())
+        det_ = DETERMINANT(self.n_rows, self.n_cols).determinant(self.elements)
+
+        return (inv_ * det_).in_fractions
+
+    @property
     def diagonal(self):
-        n_m = [[0] * self.n_rows for _ in range(self.n_rows)]
+        n_m = IDENTITY(self.n_rows).matrix()
         for i in range(self.n_rows):
             n_m[i][i] = self.elements[i][i]
 
@@ -204,3 +218,6 @@ class MATRIX:
 
     def transpose(self):
         return self._transpose()
+
+    def inverse(self, separate_determinant=False):
+        return self._give_output(INVERSE(self.elements).inverse())
