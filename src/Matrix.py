@@ -2,12 +2,9 @@
 
 import numpy as np
 
-import p_error_config as pec
 from subclasses import DETERMINANT_ as DET_
 from subclasses import MATRIX as MAT_
 from subclasses.specials.IDENTITY_ import IDENTITY
-
-pec.config()
 
 
 class Matrix(MAT_.MATRIX):
