@@ -152,7 +152,7 @@ class MATRIX:
         return self._give_output(fr_)
 
     @property
-    def adjoint(self):
+    def adjoint_matrix(self):
         inv_ = self._give_output(INVERSE(self.elements).inverse())
         det_ = DETERMINANT(self.n_rows, self.n_cols).determinant(self.elements)
 
@@ -221,3 +221,6 @@ class MATRIX:
 
     def inverse(self, separate_determinant=False):
         return self._give_output(INVERSE(self.elements).inverse())
+
+    def determinant(self):
+        return DETERMINANT(self.n_rows, self.n_cols).determinant(self.elements)

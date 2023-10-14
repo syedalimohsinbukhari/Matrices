@@ -1,3 +1,5 @@
+"""Created on Oct 08 18:22:21 2023"""
+
 from fractions import Fraction
 
 

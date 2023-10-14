@@ -114,13 +114,13 @@ class TestMatrix(TestCase):
                                Matrix([[0, 0.5], [Fraction(1, 3), Fraction(1, 6)]]))
         self.assertFalse(self.k3.is_singular)
         self.assertEqual(self.k3.inverse().in_fractions, Matrix([[8, -3], [-4, 2]]))
-        self.assertAlmostEqual(self.k3.adjoint, Matrix([[2, Fraction(-3, 4)], [-1, 0.5]]))
+        self.assertAlmostEqual(self.k3.adjoint_matrix, Matrix([[2, Fraction(-3, 4)], [-1, 0.5]]))
         self.assertEqual(self.k3.inverse() * self.k3, Matrix([[1, 0], [0, 1]]))
         self.assertAlmostEqual((self.k4 * self.k5).inverse().in_fractions,
                                self.k5.inverse().in_fractions * self.k4.inverse().in_fractions)
 
     def test_multiplicative_inverse(self):
-        self.assertTrue(self.l1.is_multiplicative_inverse(self.l2))
+        self.assertTrue(self.l1.is_multiplicative_inverse_of(self.l2))
         self.assertEqual(self.l1 * self.l2, Matrix(IDENTITY(self.l1.n_rows).matrix()))
 
     def test_random(self):
