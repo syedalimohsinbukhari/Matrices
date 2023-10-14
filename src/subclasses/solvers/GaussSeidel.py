@@ -1,7 +1,7 @@
-"""Created on Oct 13 11:37:27 2023"""
+"""Created on Oct 14 05:46:04 2023"""
 
 from subclasses.solvers.ITERATIVE_SOLVER_ import IterativeSolver
 
 
-class GaussJacobi(IterativeSolver):
+class GaussSeidel(IterativeSolver):
     pass
