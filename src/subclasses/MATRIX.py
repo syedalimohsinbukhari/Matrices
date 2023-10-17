@@ -82,7 +82,10 @@ class MATRIX:
                 raise EX_.MatrixDimensionsMismatch(f'Inner CxR={self.n_cols}x{other.n_rows}, not allowed.')
 
             if self._multi_rows():
-                return self._multi_matrix(other=other)
+                if other.n_cols == 1:
+                    return self._multi_row_v_col_matrix(other)
+                else:
+                    return self._multi_matrix(other=other)
             else:
                 return self._row_v_multi_row(other=other) if other._multi_rows() else self._row_v_col(other=other)
 
@@ -187,26 +190,35 @@ class MATRIX:
         return self._give_output(row_v_col)
 
     def _multi_matrix(self, other):
-        row1 = []
-        for i in self.elements:
-            row2 = []
-            for j in other._transpose().elements:
-                row2.append(sum([k * l for k, l in zip(i, j)]))
-            row1.append(row2)
+        result = []
+        for row in self.elements:
+            r_temp = []
+            for c_row in other.transpose().elements:
+                r_temp.append(sum([r_elem * c_elem for r_elem, c_elem in zip(row, c_row)]))
+            result.append(r_temp)
 
-        return self._give_output(row1)
+        return self._give_output(result)
 
     def _row_v_multi_row(self, other):
-        row_v_multi_row = [[sum([i * l for i, l in zip(self.elements, j)])] for j in other._transpose().elements]
+        row_v_multi_row = [[sum([row * row2 for row, row2 in zip(self.elements, c_row)])]
+                           for c_row in other.transpose().elements]
 
         return self._give_output(row_v_multi_row)
+
+    def _multi_row_v_col_matrix(self, other):
+        multi_row_v_col_matrix = [[sum(self.elements[row][col] * other.elements[col][0]
+                                       for col in range(self.n_cols))] for row in range(self.n_rows)]
+        return self._give_output(multi_row_v_col_matrix)
 
     def _transpose(self):
         if len(self) == 0:
             return self._give_output([])
 
         if self._multi_rows():
-            answer = [[self.elements[j][i] for j in range(len(self))] for i in range(len(self[0]))]
+            answer = [[self.elements[row][col]
+                       for row in range(self.n_rows)]
+                      for col in range(self.n_cols)]
+
             if self.n_cols == 1:
                 answer = answer[0]
 
@@ -216,11 +228,11 @@ class MATRIX:
 
         return self._give_output(transposed_elements)
 
-    def transpose(self):
-        return self._transpose()
-
-    def inverse(self, separate_determinant=False):
-        return self._give_output(INVERSE(self.elements).inverse())
-
     def determinant(self):
         return DETERMINANT(self.n_rows, self.n_cols).determinant(self.elements)
+
+    def inverse(self):
+        return self._give_output(INVERSE(self.elements).inverse())
+
+    def transpose(self):
+        return self._transpose()

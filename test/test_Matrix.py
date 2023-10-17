@@ -124,4 +124,4 @@ class TestMatrix(TestCase):
         self.assertEqual(self.l1 * self.l2, Matrix(IDENTITY(self.l1.n_rows).matrix()))
 
     def test_random(self):
-        self.assertEqual(self.m1.inverse().in_fractions * self.m2, Matrix([[2], [0]]))
+        self.assertEqual(self.m1.inverse() * self.m2, Matrix([[2], [0]]))
