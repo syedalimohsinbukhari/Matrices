@@ -3,10 +3,11 @@
 from fractions import Fraction
 
 from icecream import ic
-from matplotlib import pyplot as plt
 
 from Matrix import Matrix
 
+
+# TODO: return the arr1, arr2, arr3 for plotting with sensible names
 
 class IterativeSolver:
     def __init__(self, system_of_equations: Matrix, solution: Matrix, n_iter: int = 10, tol: float = 1e-5,
@@ -92,13 +93,3 @@ class IterativeSolver:
                 self._string()
             self.initial_guess = self._evaluate()
         return Matrix(self.initial_guess).transpose()
-
-    def plot_solutions(self, den_limit=20):
-        x = range(len(self.arr1))
-        plt.plot(x, self.arr1, 'k.--', label=r'$X_1$ = ' + f'{Fraction(self.arr1[-1]).limit_denominator(den_limit)}')
-        plt.plot(x, self.arr2, 'g.--', label=r'$X_2$ = ' + f'{Fraction(self.arr2[-1]).limit_denominator(den_limit)}')
-        plt.plot(x, self.arr3, 'b.--', label=r'$X_3$ = ' + f'{Fraction(self.arr3[-1]).limit_denominator(den_limit)}')
-        plt.title(f'Solution parameters using {self.n_iter} iterations')
-        plt.legend(loc='best')
-        plt.tight_layout()
-        plt.show()
