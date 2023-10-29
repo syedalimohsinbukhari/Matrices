@@ -4,7 +4,7 @@ from fractions import Fraction
 from unittest import TestCase
 
 from Matrix import Matrix
-from subclasses.specials.IDENTITY_ import IDENTITY
+from subclasses.MATRIX import IdentityMatrix
 
 
 class TestMatrix(TestCase):
@@ -121,7 +121,7 @@ class TestMatrix(TestCase):
 
     def test_multiplicative_inverse(self):
         self.assertTrue(self.l1.is_multiplicative_inverse_of(self.l2))
-        self.assertEqual(self.l1 * self.l2, Matrix(IDENTITY(self.l1.n_rows).matrix()))
+        self.assertEqual(self.l1 * self.l2, Matrix(IdentityMatrix(self.l1.n_rows).matrix()))
 
     def test_random(self):
         self.assertEqual(self.m1.inverse() * self.m2, Matrix([[2], [0]]))

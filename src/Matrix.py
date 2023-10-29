@@ -1,7 +1,7 @@
 """Created on Oct 04 21:36:44 2023"""
 
 from subclasses import MATRIX as MAT_
-from subclasses.specials.IDENTITY_ import IDENTITY
+from subclasses.MATRIX import IdentityMatrix
 
 
 class Matrix(MAT_.MATRIX):
@@ -23,5 +23,5 @@ class Matrix(MAT_.MATRIX):
         return array_function([i for i in self.elements])
 
     def is_multiplicative_inverse_of(self, other):
-        id_ = IDENTITY(self.n_rows).matrix()
+        id_ = IdentityMatrix(self.n_rows).matrix()
         return True if self * other == Matrix(id_) else False

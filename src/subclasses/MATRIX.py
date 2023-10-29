@@ -4,7 +4,6 @@ import subclasses.EXCEPTIONS_ as EX_
 from subclasses.DETERMINANT_ import DETERMINANT
 from subclasses.FRACTION_ import FRACTION
 from subclasses.INVERSE_ import INVERSE
-from subclasses.specials.IDENTITY_ import IDENTITY
 
 
 class MATRIX:
@@ -163,7 +162,7 @@ class MATRIX:
 
     @property
     def diagonal(self):
-        n_m = IDENTITY(self.n_rows).matrix()
+        n_m = IdentityMatrix(self.n_rows).matrix()
         for i in range(self.n_rows):
             n_m[i][i] = self.elements[i][i]
 
@@ -236,3 +235,17 @@ class MATRIX:
 
     def transpose(self):
         return self._transpose()
+
+
+class IdentityMatrix:
+
+    def __init__(self, n_rows):
+        self.n_rows = n_rows
+
+    def matrix(self):
+        identity_matrix = [[0 for _ in range(self.n_rows)] for _ in range(self.n_rows)]
+
+        for i in range(self.n_rows):
+            identity_matrix[i][i] = 1
+
+        return identity_matrix
