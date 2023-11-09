@@ -6,7 +6,7 @@ from subclasses.FRACTION_ import FRACTION
 from subclasses.INVERSE_ import INVERSE
 
 
-class MATRIX:
+class MatrixBaseClass:
 
     def __init__(self, elements):
         self.elements = elements
@@ -41,7 +41,7 @@ class MATRIX:
         return not self.__eq__(other)
 
     def __add__(self, other):
-        if isinstance(other, MATRIX):
+        if isinstance(other, MatrixBaseClass):
             cond = self.n_rows == other.n_rows
             cond = cond and self.n_cols == other.n_cols
 
@@ -76,7 +76,7 @@ class MATRIX:
         if isinstance(other, (int, float)):
             return self._scalar_vector_multiplication(other=other)
 
-        elif isinstance(other, MATRIX):
+        elif isinstance(other, MatrixBaseClass):
             if self.n_cols != other.n_rows:
                 raise EX_.MatrixDimensionsMismatch(f'Inner CxR={self.n_cols}x{other.n_rows}, not allowed.')
 
@@ -95,7 +95,7 @@ class MATRIX:
     __rmul__ = __mul__
 
     def __truediv__(self, other):
-        if isinstance(other, MATRIX):
+        if isinstance(other, MatrixBaseClass):
             raise EX_.DivisionByMatrix()
 
         if self._multi_rows():
@@ -162,7 +162,7 @@ class MATRIX:
 
     @property
     def diagonal(self):
-        n_m = IdentityMatrix(self.n_rows).matrix()
+        n_m = IdentityMatrix(self.n_rows).identity()
         for i in range(self.n_rows):
             n_m[i][i] = self.elements[i][i]
 
@@ -170,7 +170,7 @@ class MATRIX:
 
     @staticmethod
     def _give_output(output):
-        return MATRIX(output)
+        return MatrixBaseClass(output)
 
     def _multi_rows(self):
         return isinstance(self.elements[0], list)
@@ -242,10 +242,10 @@ class IdentityMatrix:
     def __init__(self, n_rows):
         self.n_rows = n_rows
 
-    def matrix(self):
+    def identity(self):
         identity_matrix = [[0 for _ in range(self.n_rows)] for _ in range(self.n_rows)]
 
         for i in range(self.n_rows):
             identity_matrix[i][i] = 1
 
-        return identity_matrix
+        return MatrixBaseClass(identity_matrix)
