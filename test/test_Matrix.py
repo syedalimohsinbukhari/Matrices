@@ -2,8 +2,8 @@
 
 from unittest import TestCase
 
-from pyMatrix.matrix import Matrix
-from pyMatrix.matrix import identity_matrix
+from umatrix.matrix import Matrix
+from umatrix.matrix import identity_matrix
 
 
 class TestMatrix(TestCase):

@@ -5,7 +5,7 @@ with open('README.md', 'r') as f:
     readme = f.read()
 
 setup(
-        name='pyMatrix',
+        name='umatrix',
         version='0.1.0',
         packages=find_packages(where="src"),
         url='https://github.com/syedalimohsinbukhari/Matrices',
