@@ -163,3 +163,4 @@ cython_debug/
 .idea/
 main.py
 /src/error_config.py
+/src/pyMatrix/error_config.py
