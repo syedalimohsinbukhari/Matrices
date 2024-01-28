@@ -1,4 +1,16 @@
-"""Created on Oct 05 23:54:59 2023"""
+"""Custom Exceptions
+
+This module contains custom error classes for :class:`matrix`. The error classes include,
+
+- DivisionByMatrix
+- MatrixDimensionsMismatch
+- NotASquareMatrix
+- SlicingNotAllowed
+- IndexOutOfBounds
+- DeterminantIsZero
+
+Created on Oct 05 23:54:59 2023
+"""
 
 
 class MatrixException(Exception):
@@ -16,7 +28,7 @@ class MatrixDimensionsMismatch(MatrixException):
         super().__init__(m + message)
 
 
-class NotASquareMatrixError(MatrixException):
+class NotASquareMatrix(MatrixException):
     def __init__(self, message="The provided matrix is not a square matrix.\nCan't perform LU Decomposition."):
         super().__init__(message)
 
