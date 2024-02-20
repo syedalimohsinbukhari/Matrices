@@ -13,16 +13,19 @@ which gives the functionality of generating the matrices. All the matrices have 
 - is_singular: Whether the given matrix is singular or not, e.g., det(Matrix) = 0 or not.
 - trace: The trace of the matrix.
 - in_fractions: Gives the output of the matrix in fractions.
-- t: Transpose of the matrix.
+- t: Short form for transpose of the matrix.
+- transpose: Transpose of the matrix.
 
 Along with these properties, the matrix object has the following functions,
 
+- is_symmetric: Whether the matrix is symmetric or not.
+- is_orthogonal: Whether the matrix is orthogonal or not.
+- is_positive_definite: Whether the matrix is positive definite or not.
 - determinant: The determinant of the matrix.
 - inverse: The inverse of the matrix.
 - adjoint_matrix: The adjoint of the matrix.
-- diagonal_of_matrix: The diagonal elements of the matrix.
-- t: Short form for transpose of the matrix.
-- transpose: Transpose of the matrix.
+- diagonal: The diagonal elements of the matrix as a vector.
+- diagonal_of_matrix: The diagonal elements of the matrix in a square matrix.
 - hadamard_product: Performs element wise multiplication for two given matrices.
 - elementwise_product: Same as hadamard_product.
 - is_multiplicative_inverse_of: Whether the self matrix is a multiplicative inverse of the other matrix or not.
@@ -36,15 +39,18 @@ Additionally, the module provides the following functions,
 - identity_matrix: Generates identity matrix for given rows and columns.
 - null_matrix: Generates null matrix for given rows and columns.
 - vector_mag: Gives the magnitude of the given vector.
+- matrix_copy: Makes a deepcopy of matrix to avoid destructive manipulation of the original matrix.
+- map_to_matrix: Provides an interface to map a function to the matrix, fully, diagonally or off-diagonally.
 
 And two classes,
 
-- Inverse: Class for calculation of inverse of the given matrix.
 - InFractions: Provides functionality to turn matrices from decimal to fractions.
+- Inverse: Class for calculation of inverse of the given matrix.
 
 Created on Oct 07 17:48:12 2023
 """
 
+from copy import deepcopy
 from fractions import Fraction
 from itertools import chain
 from math import sqrt
@@ -164,20 +170,54 @@ class Matrix:
         negated_elements = [[-element for element in row] for row in self.elements]
         return self._give_output(negated_elements)
 
+    def __pow__(self, power, modulo=None):
+        if modulo is None:
+            return map_to_matrix(self, lambda _: _**power)
+        else:
+            return map_to_matrix(self, lambda _: _**power % modulo)
+
+    def __initialize_slicing(self, slice_object):
+        start, stop, step = slice_object.indices(len(self))
+
+        if start is None:
+            start = 0
+        if stop is None:
+            stop = self.n_rows
+        if step is None:
+            step = 1
+
+        return start, stop, step
+
     def __getitem__(self, index):
-        if index > len(self.elements):
-            raise c_ex_.IndexOutOfBounds()
-
         if isinstance(index, slice):
-            raise c_ex_.SlicingNotAllowed()
+            start, stop, step = self.__initialize_slicing(index)
+            output = [self.elements[i] for i in range(start, stop, step)]
 
-        return self._give_output(self.elements[index]) if self._multi_rows() else self.elements[index]
+        elif isinstance(index, tuple):
+            output, output_ = [], []
+            row_slice, col_slice = index
+
+            if isinstance(row_slice, slice):
+                start, stop, step = self.__initialize_slicing(row_slice)
+                output_ = [self.elements[i] for i in range(start, stop, step)]
+
+            if isinstance(col_slice, slice):
+                start, stop, step = self.__initialize_slicing(col_slice)
+                output = [out_[start:stop:step] for out_ in output_]
+        else:
+            if isinstance(index, (int, float)):
+                if index > len(self.elements):
+                    raise c_ex_.IndexOutOfBounds()
+
+            return self._give_output(self.elements[index]) if self._multi_rows() else self.elements[index]
+
+        return self._give_output(output)
 
     def __setitem__(self, index, value):
         if index >= len(self.elements):
             raise c_ex_.IndexOutOfBounds()
 
-        if isinstance(index, slice):
+        if isinstance(index, (slice, tuple)):
             raise c_ex_.SlicingNotAllowed()
 
         self.elements[index] = value
@@ -283,22 +323,16 @@ class Matrix:
     def is_symmetric(self):
         return self == self.t
 
-    def _is_orthogonal(self):
+    def is_orthogonal(self):
         return self * self.t == identity_matrix(self.n_rows, self.n_cols)
 
     def is_positive_definite(self) -> bool:
-        n_dimensions = self.n_rows
+        zero_ = null_matrix(self.n_rows, 1) + 1
 
         if not self.is_symmetric():
             return False
 
-        for i in range(1, n_dimensions + 1):
-            minor = [row[:i] for row in self.elements[:i]]
-            determinant_ = sum([minor[j][j] for j in range(i)])
-            if determinant_ <= 0:
-                return False
-
-        return True
+        return vector_mag(zero_.t * self * zero_) > 0
 
     def determinant(self):
         return determinant(self.elements)
@@ -361,22 +395,6 @@ class Matrix:
         return sum([i * j for i, j in zip(self.elements, other.elements)])
 
 
-class InFractions:
-    def __init__(self, decimal_value: IFloat):
-        self.fraction = Fraction(decimal_value).limit_denominator()
-
-    def __repr__(self) -> str:
-        return str(self.fraction)
-
-    @property
-    def numerator(self) -> IFloat:
-        return self.fraction.numerator
-
-    @property
-    def denominator(self) -> IFloat:
-        return self.fraction.denominator
-
-
 def determinant(matrix: Matrix or LList) -> float:
     """
     Calculate determinant of a given matrix.
@@ -425,67 +443,6 @@ def determinant(matrix: Matrix or LList) -> float:
         raise c_ex_.NotASquareMatrix("Matrix must be square for determinant calculation.")
 
     return calculate_determinant(matrix)
-
-
-class Inverse:
-
-    def __init__(self, matrix_elements: LList):
-        self.elements = matrix_elements
-
-    @staticmethod
-    def _pivot_row(matrix, col):
-        """Find the row with the largest absolute value in the current column."""
-        max_val = 0
-        max_row = -1
-        for i in range(col, len(matrix)):
-            if abs(matrix[i][col]) > max_val:
-                max_val = abs(matrix[i][col])
-                max_row = i
-        return max_row
-
-    @staticmethod
-    def _swap_rows(matrix, i, j):
-        """Swap two rows in the matrix."""
-        matrix[i], matrix[j] = matrix[j], matrix[i]
-
-    @staticmethod
-    def _scale_row(matrix, row, factor):
-        """Multiply a row by a scalar factor."""
-        matrix[row] = [x * factor for x in matrix[row]]
-
-    @staticmethod
-    def _add_scaled_row(matrix, source_row, target_row, factor):
-        """Add a scaled row to another row."""
-        scaled_row = [x * factor for x in matrix[source_row]]
-        matrix[target_row] = [x + y for x, y in zip(matrix[target_row], scaled_row)]
-
-    def inverse(self):
-        n_rows = len(self.elements)
-        n_cols = len(self.elements[0])
-
-        if n_rows != n_cols:
-            raise c_ex_.NotASquareMatrix("Matrix must be square for inverse calculation.")
-
-        augmented_matrix = [row[:] + [int(i == j) for j in range(n_rows)] for i, row in enumerate(self.elements)]
-
-        for col in range(n_rows):
-            pivot_row = self._pivot_row(augmented_matrix, col)
-            if pivot_row == -1:
-                raise ValueError("Matrix is singular (no unique inverse).")
-
-            self._swap_rows(augmented_matrix, col, pivot_row)
-
-            pivot_value = augmented_matrix[col][col]
-            self._scale_row(augmented_matrix, col, 1.0 / pivot_value)
-
-            for row in range(n_rows):
-                if row != col:
-                    factor = -augmented_matrix[row][col]
-                    self._add_scaled_row(augmented_matrix, col, row, factor)
-
-        inverse_matrix = [row[n_rows:] for row in augmented_matrix]
-
-        return inverse_matrix
 
 
 def identity_matrix(n_rows: int, n_cols: OptIFloat = None, value: IFloat = 1) -> Matrix:
@@ -575,37 +532,134 @@ def vector_mag(vector: Matrix, squared: bool = False) -> IFloat:
     return vec_norm_ if squared else sqrt(vec_norm_)
 
 
-def populate_identity_matrix(sub_matrix: Matrix, n_rows: int, n_cols: int, s_row: int, s_col: int) -> Matrix:
+def matrix_copy(matrix: Matrix, overwrite: bool = False) -> Matrix:
     """
-    Populate the identity matrix with given sub-matrices.
+    Copy or make a deep-copy of the given matrix.
 
     Parameters
     ----------
-    sub_matrix:
-        The sub-matrix to populate the identity matrix into.
-    n_rows:
-        The number of rows in the parent matrix.
-    n_cols:
-        The number of columns in the parent matrix.
-    s_row:
-        The starting row for insertion of the sub-matrix.
-    s_col:
-        The starting column for insertion of the sub-matrix.
+    matrix:
+        The matrix to make the copy of.
+    overwrite:
+        Whether to overwrite the original matrix or not.
 
     Returns
     -------
-        Identity matrix, populated with the provided sub-matrix.
+    Matrix:
+        The copied matrix instance.
     """
 
-    # create a simple identity matrix
-    populated_identity_matrix = identity_matrix(n_rows, n_cols).elements
+    temp_ = Matrix(matrix) if not isinstance(matrix, Matrix) else matrix
+    return temp_ if overwrite else Matrix(deepcopy(temp_.elements[:]))
 
-    for i in range(sub_matrix.n_rows):
-        # the sub-matrix can be populated within identity matrix easily if sub-matrix is not a single element matrix.
-        if sub_matrix.n_rows > 1 and sub_matrix.n_cols > 1:
-            populated_identity_matrix[s_row:][i][s_col:] = sub_matrix.elements[i]
-        # if the sub-matrix only has a single element, treat it as a special case.
-        else:
-            populated_identity_matrix[-1][-1] = sub_matrix.elements[0]
 
-    return Matrix(populated_identity_matrix)
+def map_to_matrix(matrix: Matrix, function, apply_to: str = 'full'):
+    """
+    Apply a given function element-wise to a matrix.
+
+    Parameters
+    ----------
+    matrix:
+        The matrix to be mapped.
+    function:
+        A function that takes a single float as input and returns a float.
+    apply_to:
+        Where to apply the function, either 'diagonal', 'off-diagonal' or 'full'. Default is full.
+
+    Returns
+    -------
+    Matrix
+        A new matrix where the function has been applied element-wise.
+    """
+
+    matrix_ = matrix_copy(matrix, True)
+
+    for i in range(matrix_.n_rows):
+        for j in range(matrix_.n_cols):
+            if apply_to == 'diagonal':
+                if i == j:
+                    matrix_[i][j] = function(matrix[i][j])
+            elif apply_to == 'off-diagonal':
+                if i != j:
+                    matrix_[i][j] = function(matrix[i][j])
+            elif apply_to == 'full':
+                matrix_[i][j] = function(matrix[i][j])
+
+    return matrix_
+
+
+class InFractions:
+    def __init__(self, decimal_value: IFloat):
+        self.fraction = Fraction(decimal_value).limit_denominator()
+
+    def __repr__(self) -> str:
+        return str(self.fraction)
+
+    @property
+    def numerator(self) -> IFloat:
+        return self.fraction.numerator
+
+    @property
+    def denominator(self) -> IFloat:
+        return self.fraction.denominator
+
+
+class Inverse:
+
+    def __init__(self, matrix_elements: LList):
+        self.elements = matrix_elements
+
+    @staticmethod
+    def _pivot_row(matrix, col):
+        """Find the row with the largest absolute value in the current column."""
+        max_val = 0
+        max_row = -1
+        for i in range(col, len(matrix)):
+            if abs(matrix[i][col]) > max_val:
+                max_val = abs(matrix[i][col])
+                max_row = i
+        return max_row
+
+    @staticmethod
+    def _swap_rows(matrix, i, j):
+        """Swap two rows in the matrix."""
+        matrix[i], matrix[j] = matrix[j], matrix[i]
+
+    @staticmethod
+    def _scale_row(matrix, row, factor):
+        """Multiply a row by a scalar factor."""
+        matrix[row] = [x * factor for x in matrix[row]]
+
+    @staticmethod
+    def _add_scaled_row(matrix, source_row, target_row, factor):
+        """Add a scaled row to another row."""
+        scaled_row = [x * factor for x in matrix[source_row]]
+        matrix[target_row] = [x + y for x, y in zip(matrix[target_row], scaled_row)]
+
+    def inverse(self):
+        n_rows = len(self.elements)
+        n_cols = len(self.elements[0])
+
+        if n_rows != n_cols:
+            raise c_ex_.NotASquareMatrix("Matrix must be square for inverse calculation.")
+
+        augmented_matrix = [row[:] + [int(i == j) for j in range(n_rows)] for i, row in enumerate(self.elements)]
+
+        for col in range(n_rows):
+            pivot_row = self._pivot_row(augmented_matrix, col)
+            if pivot_row == -1:
+                raise ValueError("Matrix is singular (no unique inverse).")
+
+            self._swap_rows(augmented_matrix, col, pivot_row)
+
+            pivot_value = augmented_matrix[col][col]
+            self._scale_row(augmented_matrix, col, 1.0 / pivot_value)
+
+            for row in range(n_rows):
+                if row != col:
+                    factor = -augmented_matrix[row][col]
+                    self._add_scaled_row(augmented_matrix, col, row, factor)
+
+        inverse_matrix = [row[n_rows:] for row in augmented_matrix]
+
+        return inverse_matrix

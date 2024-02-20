@@ -6,7 +6,7 @@ with open('README.md', 'r') as f:
 
 setup(
         name='umatrix',
-        version='0.1.1',
+        version='0.1.2',
         packages=find_packages(where="src"),
         url='https://github.com/syedalimohsinbukhari/Matrices',
         license='MIT',
